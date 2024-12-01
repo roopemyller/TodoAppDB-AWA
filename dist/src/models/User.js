@@ -36,7 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 let todoSchema = new mongoose_1.Schema({
-    todo: { type: String, required: true }
+    todo: { type: String, required: true },
+    checked: { type: Boolean, default: false }
 });
 let userSchema = new mongoose_1.Schema({
     name: { type: String, required: true },

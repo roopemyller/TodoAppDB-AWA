@@ -45,12 +45,43 @@ document.addEventListener("DOMContentLoaded", function (){
                 }
                 return response.json()
             }).then(todos => {
+                console.log(todos)
                 todos.forEach(todo => {
+                    console.log(todo.todo + " is " + todo.checked)
+
                     const li = document.createElement('li')
+                    const checkbox = document.createElement("input")
+                    checkbox.type = "checkbox"
+                    checkbox.checked = todo.checked
+                    checkbox.classList.add('checkBoxes')
+                    checkbox.id = "myCheckbox"
+                    li.appendChild(checkbox)
+
+                    checkbox.addEventListener('change', async function () {
+                        try{
+                            const response = await fetch('/updateTodo', {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    name: userId,
+                                    todo: todo.todo,
+                                    checked: checkbox.checked
+                                }),
+                            })
+
+                            if(!response.ok){
+                                throw new Error("Error updating todo")
+                            }
+                            const message = await response.text()
+                            console.log(message)
+                        }catch (error){
+                            alert(error.message)
+                        }
+                    })
                     const a = document.createElement('a')
                     a.href = "#"
                     a.classList.add('delete-task')
-                    a.textContent = todo
+                    a.textContent = todo.todo
                     li.appendChild(a)
                     todoList.appendChild(li)
                     a.addEventListener('click', function() {

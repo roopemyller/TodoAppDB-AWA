@@ -16,7 +16,10 @@ router.post('/add', async (req, res) => {
         let user = await User.findOne({name})
 
         if(user){
-            user.todos.push({todo})
+            user.todos.push({
+                todo,
+                checked: false
+            })
         }else{
             user = new User({name, todos: [{todo}]})
         }
@@ -44,7 +47,11 @@ router.get('/todos/:id', async (req, res) => {
         const user = await User.findOne({name: userId})
 
         if(user){
-            res.status(200).json(user.todos.map(todo => todo.todo))
+            const todos = user.todos.map(todo => ({
+                todo: todo.todo,
+                checked: todo.checked
+            }))
+            res.status(200).json(todos)
         }else {
             console.log("Error fetching user")
             return
@@ -104,5 +111,28 @@ router.put("/update", async (req, res) => {
     
 })
 
+router.put("/updateTodo", async (req, res) => {
+    const {name, todo, checked} = req.body
+    console.log(req.body)
+    try{
+        const user = await User.findOne({name})
+        if(user){
+            const todoItem = user.todos.find(t => t.todo === todo)
+            if (todoItem){
+                todoItem.checked = checked
+                await user.save()
+                res.status(200).send("Todo updated successfully")
+            }else{
+                console.log("todoitem not found")
+            }
+        }else {
+            console.log("user not found error")
+        }
+    }catch (err){
+        console.error(err)
+        res.send("Server error")
+    }
+
+})
 
 export default router
