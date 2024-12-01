@@ -2,30 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="main.js"></script>
 </head>
 <body>
-    <form id="todoForm">
-        <label for="name">Username</label><br>
-        <input type="text" id="userInput"><br>
-        <label for="email">Task</label><br>
-        <input type="text" id="todoInput"><br><br>
-        <button type="submit" id="submit-data">Submit</button>
-    </form>
-
-    <p id="message"></p>
-<br>
-    <form id="searchForm">
-        <label for="searchInput">Search</label><br>
-        <input type="text" id="searchInput"><br><br>
-        <button id="search">Search</button>
-    </form>
-
-    <div id="todoDiv">
-        <h2>Todo list:</h2>
-        <ul id="todoList"></ul>
+    <div class="navbar-fixed">
+        <nav>
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo center">Todo App</a>
+                <ul class="left">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </div>
+        </nav>
     </div>
+    
+    <div class="container">
+        <div class="col">
+            <form id="todoForm">
+                <label for="name">Username</label><br>
+                <input type="text" id="userInput"><br>
+                <label for="email">Task</label><br>
+                <input type="text" id="todoInput"><br><br>
+                <button type="submit" id="submit-data" class="btn">Submit</button>
+            </form>
+        
+            <p id="message"></p>
+        </div>
+            
+        <div id="searchDiv" class="col">
+            <form id="searchForm">
+                <label for="searchInput">Search</label><br>
+                <input type="text" id="searchInput"><br><br>
+                <button id="search" class="btn">Search</button>
+            </form>
+            <h2>Todo list:</h2>
+            <ul id="todoList"></ul>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 </html>

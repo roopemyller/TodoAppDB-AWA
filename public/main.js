@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function (){
     }),
     document.getElementById("searchForm").addEventListener('submit', function (e) {
         e.preventDefault()
-
+        const searchForm = document.getElementById("searchForm")
         const userId = document.getElementById('searchInput').value
         const messageElement = document.getElementById('message')
         const todoList = document.getElementById("todoList")
@@ -45,17 +45,30 @@ document.addEventListener("DOMContentLoaded", function (){
                 }
                 return response.json()
             }).then(todos => {
-                console.log(todos)
                 todos.forEach(todo => {
-                    console.log(todo.todo + " is " + todo.checked)
 
                     const li = document.createElement('li')
+                    const label = document.createElement('label')
+
                     const checkbox = document.createElement("input")
                     checkbox.type = "checkbox"
-                    checkbox.checked = todo.checked
                     checkbox.classList.add('checkBoxes')
                     checkbox.id = "myCheckbox"
-                    li.appendChild(checkbox)
+
+                    checkbox.checked = todo.checked
+
+                    const span = document.createElement('span')
+                    const deleteLink = document.createElement('a')
+                    deleteLink.href = "#"
+                    deleteLink.classList.add('delete-task')
+                    deleteLink.textContent = todo.todo
+
+                    label.appendChild(checkbox)
+                    label.appendChild(span)
+                    span.appendChild(deleteLink)
+
+                    li.appendChild(label)
+                    todoList.appendChild(li)
 
                     checkbox.addEventListener('change', async function () {
                         try{
@@ -77,14 +90,9 @@ document.addEventListener("DOMContentLoaded", function (){
                         }catch (error){
                             alert(error.message)
                         }
-                    })
-                    const a = document.createElement('a')
-                    a.href = "#"
-                    a.classList.add('delete-task')
-                    a.textContent = todo.todo
-                    li.appendChild(a)
-                    todoList.appendChild(li)
-                    a.addEventListener('click', function() {
+                    })                    
+
+                    deleteLink.addEventListener('click', function() {
                         fetch('/update', {
                             method: 'PUT',
                             headers: {
@@ -108,12 +116,12 @@ document.addEventListener("DOMContentLoaded", function (){
                         })
                     })
                 })
-                const constDiv = document.getElementById("todoDiv")
+                const searchDiv = document.getElementById("searchDiv")
 
                 const deleteButton = document.createElement('button')
                 deleteButton.textContent = "Delete User"
                 deleteButton.id = "deleteUser"
-                constDiv.appendChild(deleteButton)
+                searchDiv.appendChild(deleteButton)
                 
                 deleteButton.addEventListener('click', function () {
                     fetch('/delete', {
@@ -136,15 +144,16 @@ document.addEventListener("DOMContentLoaded", function (){
                     .catch(error => {
                         messageElement.textContent = error.message
                     })
-                    constDiv.removeChild(deleteButton)
+                    searchDiv.removeChild(deleteButton)
                 })
             })
             .catch(error => {
                 messageElement.textContent = error.message;
             })
-    } else {
-        messageElement.textContent = "Please enter a username.";
-    }
+        searchForm.reset()
+        } else {
+           messageElement.textContent = "Please enter a username.";
+        }
     })
     function displayTodos(user){
         const todoList = document.getElementById("todoList")
