@@ -79,11 +79,12 @@ router.delete('/delete', async (req, res) => {
 });
 router.put("/update", async (req, res) => {
     const { name, todo } = req.body;
+    console.log(req.body);
     if (name && todo) {
         try {
             const user = await User_1.User.findOne({ name });
             if (user) {
-                const todoIndex = user.todos.findIndex((t) => t.todo === todo);
+                const todoIndex = user.todos.findIndex((t) => t.todo === todo.todo);
                 if (todoIndex !== -1) {
                     user.todos.splice(todoIndex, 1);
                     await user.save();
