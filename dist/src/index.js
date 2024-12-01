@@ -1,82 +1,100 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const fs_1 = __importDefault(require("fs"));
+const User_1 = require("./models/User");
 const router = (0, express_1.Router)();
-const loadTodos = () => {
-    try {
-        const data = fs_1.default.readFileSync("data.json", 'utf-8');
-        return JSON.parse(data);
-    }
-    catch (err) {
-        console.error(`Error reading or parsing the todo file: `, err);
-        return [];
-    }
-};
-const saveTodos = (todos) => {
-    try {
-        fs_1.default.writeFileSync("data.json", JSON.stringify(todos, null, 2), 'utf-8');
-    }
-    catch (err) {
-        console.error(`Error writing the todo file: `, err);
-    }
-};
-router.post('/add', (req, res) => {
-    console.log(req.body);
+router.post('/add', async (req, res) => {
     const { name, todo } = req.body;
-    let todos = loadTodos();
-    const user = todos.find((user) => user.name === name);
-    if (user) {
-        user.todos.push(todo);
-    }
-    else {
-        todos.push({ name, todos: [todo] });
-    }
-    saveTodos(todos);
-    res.send(`Todo added successfully for user ${name}`);
-});
-router.get('/todos', (req, res) => {
-    let todos = loadTodos();
-    res.status(200).json({ todos });
-});
-router.get('/todos/:id', (req, res) => {
-    let userId = req.params.id;
-    let todos = loadTodos();
-    const user = todos.find((user) => user.name.toLowerCase() === userId.toLowerCase());
-    if (user) {
-        res.status(200).json(user.todos);
-    }
-    else {
-        res.status(404).send("User not found");
-    }
-});
-router.delete('/delete', (req, res) => {
-    const { name } = req.body;
-    let todos = loadTodos();
-    const userIndex = todos.findIndex((user) => user.name.toLowerCase() === name.toLowerCase());
-    if (userIndex !== -1) {
-        todos.splice(userIndex, 1);
-        saveTodos(todos);
-        res.status(200).send("User deleted successfully");
-    }
-    else {
-        res.status(404).send("User not found");
-    }
-});
-router.put("/update", (req, res) => {
-    const { name, todo } = req.body;
-    let todos = loadTodos();
-    const user = todos.find((user) => user.name.toLowerCase() === name.toLowerCase());
-    if (user) {
-        const todoIndex = user.todos.indexOf(todo);
-        if (todoIndex !== -1) {
-            user.todos.splice(todoIndex, 1);
+    try {
+        let user = await User_1.User.findOne({ name });
+        if (user) {
+            user.todos.push({ todo });
         }
-        saveTodos(todos);
-        res.status(200).send("Todo deleted successfully");
+        else {
+            user = new User_1.User({ name, todos: [{ todo }] });
+        }
+        await user.save();
+        res.send(`Todo added successfully for user ${name}`);
+    }
+    catch (err) {
+        console.error(err);
+        res.send("Server error");
+    }
+});
+router.get('/todos', async (req, res) => {
+    try {
+        const users = await User_1.User.find();
+        res.status(200).json(users);
+    }
+    catch (err) {
+        console.error(err);
+        res.send("Server error");
+    }
+});
+router.get('/todos/:id', async (req, res) => {
+    let userId = req.params.id;
+    try {
+        const user = await User_1.User.findOne({ name: userId });
+        if (user) {
+            res.status(200).json(user.todos.map(todo => todo.todo));
+        }
+        else {
+            console.log("Error fetching user");
+            return;
+        }
+    }
+    catch (err) {
+        console.error(err);
+        res.send("Server error");
+    }
+});
+router.delete('/delete', async (req, res) => {
+    const { name } = req.body;
+    if (name) {
+        try {
+            const user = await User_1.User.findOneAndDelete({ name });
+            if (user) {
+                res.status(200).send("User deleted successfully");
+            }
+            else {
+                console.log("Error fetching user");
+                return;
+            }
+        }
+        catch (err) {
+            console.error(err);
+            res.send("Server error");
+        }
+    }
+    else {
+        console.log("No name");
+    }
+});
+router.put("/update", async (req, res) => {
+    const { name, todo } = req.body;
+    if (name && todo) {
+        try {
+            const user = await User_1.User.findOne({ name });
+            if (user) {
+                const todoIndex = user.todos.findIndex((t) => t.todo === todo);
+                if (todoIndex !== -1) {
+                    user.todos.splice(todoIndex, 1);
+                    await user.save();
+                    res.status(200).send("Todo deleted successfully");
+                }
+            }
+            else {
+                console.log("Error fetching user");
+                return;
+            }
+        }
+        catch (err) {
+            console.error(err);
+            res.send("Server error");
+        }
+    }
+    else {
+        console.log("No name or todo");
     }
 });
 exports.default = router;
